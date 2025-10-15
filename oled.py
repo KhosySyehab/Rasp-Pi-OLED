@@ -1,4 +1,5 @@
 import time
+import RPi.GPIO as GPIO
 from PIL import Image, ImageDraw, ImageFont
 import board
 import busio
@@ -8,58 +9,65 @@ import adafruit_ssd1306
 i2c = busio.I2C(board.SCL, board.SDA)
 oled = adafruit_ssd1306.SSD1306_I2C(128, 64, i2c)
 
-# Bersihkan layar
-oled.fill(0)
-oled.show()
+# --- Inisialisasi HC-SR04 ---
+TRIG = 23
+ECHO = 24
 
-# Siapkan kanvas gambar
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(TRIG, GPIO.OUT)
+GPIO.setup(ECHO, GPIO.IN)
+
+# --- OLED setup ---
 width = oled.width
 height = oled.height
 image = Image.new("1", (width, height))
 draw = ImageDraw.Draw(image)
 font = ImageFont.load_default()
 
-# Fungsi untuk teks tengah
-def center_text(text, y=24):
-    text_width = draw.textlength(text, font=font)
-    x = (width - text_width) // 2
-    draw.text((x, y), text, font=font, fill=255)
+def tampilkan_text(line1, line2=""):
+    """Menampilkan dua baris teks di OLED"""
+    draw.rectangle((0, 0, width, height), outline=0, fill=0)
+    draw.text((0, 16), line1, font=font, fill=255)
+    draw.text((0, 32), line2, font=font, fill=255)
+    oled.image(image)
+    oled.show()
 
-# Animasi loading
-def loading_animation():
-    for i in range(1, 13):
-        draw.rectangle((0, 0, width, height), outline=0, fill=0)
-        center_text("Starting...", 16)
-        dots = "." * (i % 4)
-        center_text(dots, 36)
-        oled.image(image)
-        oled.show()
-        time.sleep(0.2)
+def ukur_jarak():
+    """Mengukur jarak dengan HC-SR04"""
+    GPIO.output(TRIG, False)
+    time.sleep(0.05)
 
-# Efek scroll teks
-def scroll_text(message, delay=0.02):
-    text_width = draw.textlength(message, font=font)
-    for x in range(width, -text_width, -2):
-        draw.rectangle((0, 0, width, height), outline=0, fill=0)
-        draw.text((x, 24), message, font=font, fill=255)
-        oled.image(image)
-        oled.show()
-        time.sleep(delay)
+    # Trigger ultrasonic
+    GPIO.output(TRIG, True)
+    time.sleep(0.00001)
+    GPIO.output(TRIG, False)
 
-# Efek blink
-def blink_text(text, times=5, delay=0.3):
-    for i in range(times):
-        draw.rectangle((0, 0, width, height), outline=0, fill=0)
-        if i % 2 == 0:
-            center_text(text)
-        oled.image(image)
-        oled.show()
-        time.sleep(delay)
+    # Hitung waktu pantulan
+    while GPIO.input(ECHO) == 0:
+        pulse_start = time.time()
+    while GPIO.input(ECHO) == 1:
+        pulse_end = time.time()
 
-# --- Jalankan animasi ---
-loading_animation()
-scroll_text("Hello Raspberry Pi!")
-blink_text("Welcome!", 6)
-center_text("🎉 Ready to Go 🎉")
-oled.image(image)
-oled.show()
+    durasi = pulse_end - pulse_start
+    jarak = durasi * 17150  # Kecepatan suara 34300 cm/s dibagi 2
+    return round(jarak, 2)
+
+# --- Main Loop ---
+try:
+    tampilkan_text("HC-SR04", "Memulai...")
+    time.sleep(1)
+
+    while True:
+        try:
+            jarak = ukur_jarak()
+            print(f"Jarak: {jarak} cm")
+            tampilkan_text("Jarak Terdeteksi:", f"{jarak} cm")
+            time.sleep(0.5)
+        except Exception as e:
+            tampilkan_text("Error:", str(e))
+            time.sleep(1)
+
+except KeyboardInterrupt:
+    print("\nProgram dihentikan.")
+    tampilkan_text("Program", "Dihentikan.")
+    GPIO.cleanup()
