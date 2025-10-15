@@ -121,6 +121,13 @@ Jarak: 26.7 cm
 ```
 ![](assets/dist.jpeg)
 ### Eksperimen menggunakan sensor ultrasonik dengan output OLED:
+
+### Deskripsi Singkat
+Program ini berfungsi untuk mengukur jarak objek menggunakan sensor ultrasonik HC-SR04 dan menampilkan hasil pengukurannya pada layar OLED SSD1306 yang terhubung ke Raspberry Pi melalui komunikasi I2C.
+
+Cara kerjanya, Raspberry Pi mengirimkan sinyal trigger ke sensor ultrasonik untuk memancarkan gelombang suara, kemudian menunggu pantulan gelombang tersebut kembali ke pin echo. Selisih waktu antara pengiriman dan penerimaan gelombang digunakan untuk menghitung jarak berdasarkan kecepatan suara.
+
+Nilai jarak yang diperoleh akan ditampilkan secara real-time pada layar OLED dan juga dicetak di terminal. Program berjalan terus-menerus dalam loop untuk melakukan pembacaan jarak secara berkelanjutan.
 ### **Kode Program**
 
 ```python
@@ -183,7 +190,8 @@ while True:
 | OLED SCL     | GPIO 3 (SCL)     | Clock I2C         |
 
 ## Kesimpulan  
-Program ini menggabungkan sensor ultrasonik dan layar OLED untuk menampilkan hasil pengukuran jarak secara real-time. Namun menghasilkan output yang gagal
+Kesimpulan dari program ini adalah bahwa Raspberry Pi dapat digunakan sebagai mikrokontroler untuk membaca data jarak dari sensor ultrasonik HC-SR04 dan menampilkannya secara real-time pada layar OLED SSD1306.. Namun menghasilkan output yang gagal
+
 #### Hasil Akhir:
 ![](assets/oled1.jpeg)
 ![](assets/oled.jpeg)    
