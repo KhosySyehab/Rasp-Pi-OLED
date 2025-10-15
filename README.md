@@ -108,22 +108,20 @@ except KeyboardInterrupt:
     print("Menghentikan program")
     GPIO.cleanup()
 ```
-# 🌿 Proyek Sensor Jarak & OLED Menggunakan Raspberry Pi
 
-## 📘 Pendahuluan
-Proyek ini bertujuan untuk mengukur jarak menggunakan **sensor ultrasonik HC-SR04** dan menampilkannya pada **layar OLED SSD1306** melalui **Raspberry Pi**.  
-Aplikasi ini cocok untuk sistem otomatisasi seperti **greenhouse budidaya jamur kuping**, di mana jarak atau tinggi objek perlu dipantau secara real-time.
+### Eksperimen menggunakan sensor ultrasonik dengan output terminal:
+#### Hasil Akhir:
+![](assets/dist-output.jpeg)
+Bisa dilihat hasil perhitungan jarak dioutput secara real-time di terminal
+```
+Jarak: 24.7 cm
+Jarak: 24.7 cm
+Jarak: 26.7 cm
 
----
-
-## ⚙️ Fungsi Sistem
-1. **Membaca jarak objek** menggunakan sensor HC-SR04 dengan prinsip pantulan gelombang ultrasonik.  
-2. **Menampilkan hasil pengukuran** di layar OLED SSD1306 melalui komunikasi I2C.  
-3. **Menampilkan data jarak** juga di terminal sebagai log monitoring.
-
----
-
-## 💻 Kode Program
+```
+![](assets/dist.jpeg)
+### Eksperimen menggunakan sensor ultrasonik dengan output OLED:
+### **Kode Program**
 
 ```python
 import time
@@ -185,19 +183,7 @@ while True:
 | OLED SCL     | GPIO 3 (SCL)     | Clock I2C         |
 
 ## Kesimpulan  
-Program ini menggabungkan sensor ultrasonik dan layar OLED untuk menampilkan hasil pengukuran jarak secara real-time. Dengan Raspberry Pi, sistem ini dapat dikembangkan menjadi monitoring otomatis untuk lingkungan greenhouse atau aplikasi IoT lainnya.
-### Eksperimen menggunakan sensor ultrasonik dengan output terminal:
-#### Hasil Akhir:
-![](assets/dist-output.jpeg)
-Bisa dilihat hasil perhitungan jarak dioutput secara real-time di terminal
-```
-Jarak: 24.7 cm
-Jarak: 24.7 cm
-Jarak: 26.7 cm
-
-```
-![](assets/dist.jpeg)
-### Eksperimen menggunakan sensor ultrasonik dengan output OLED:
+Program ini menggabungkan sensor ultrasonik dan layar OLED untuk menampilkan hasil pengukuran jarak secara real-time. Namun menghasilkan output yang gagal
 #### Hasil Akhir:
 ![](assets/oled1.jpeg)
 ![](assets/oled.jpeg)    
@@ -205,3 +191,5 @@ Layar menghasilkan output bintik bintik hitam dengan background putih saja, tida
 ## Documentation:
 ![fotbar](assets/fotbar.jpeg)
 ![fotbar2](assets/fotbar1.jpeg)
+![pengerjaan](assets/pembuatan.jpeg)
+![pengerjaan](assets/pembuatan1.jpeg)
