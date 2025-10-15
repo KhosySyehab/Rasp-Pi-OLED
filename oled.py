@@ -1,73 +1,49 @@
 import time
-import RPi.GPIO as GPIO
-from PIL import Image, ImageDraw, ImageFont
 import board
 import busio
 import adafruit_ssd1306
+import RPi.GPIO as GPIO
+from PIL import Image, ImageDraw, ImageFont
 
-# --- Inisialisasi OLED ---
-i2c = busio.I2C(board.SCL, board.SDA)
-oled = adafruit_ssd1306.SSD1306_I2C(128, 64, i2c)
-
-# --- Inisialisasi HC-SR04 ---
+# --- Setup GPIO untuk HC-SR04 ---
+GPIO.setmode(GPIO.BCM)
 TRIG = 23
 ECHO = 24
-
-GPIO.setmode(GPIO.BCM)
 GPIO.setup(TRIG, GPIO.OUT)
 GPIO.setup(ECHO, GPIO.IN)
 
-# --- OLED setup ---
-width = oled.width
-height = oled.height
-image = Image.new("1", (width, height))
-draw = ImageDraw.Draw(image)
+# --- Setup I2C untuk OLED ---
+i2c = busio.I2C(board.SCL, board.SDA)
+oled = adafruit_ssd1306.SSD1306_I2C(128, 64, i2c)
+
+# --- Font dan tampilan ---
 font = ImageFont.load_default()
 
-def tampilkan_text(line1, line2=""):
-    """Menampilkan dua baris teks di OLED"""
-    draw.rectangle((0, 0, width, height), outline=0, fill=0)
-    draw.text((0, 16), line1, font=font, fill=255)
-    draw.text((0, 32), line2, font=font, fill=255)
-    oled.image(image)
-    oled.show()
-
-def ukur_jarak():
-    """Mengukur jarak dengan HC-SR04"""
+while True:
+    # Kirim pulsa ultrasonik
     GPIO.output(TRIG, False)
-    time.sleep(0.05)
-
-    # Trigger ultrasonic
+    time.sleep(0.2)
     GPIO.output(TRIG, True)
     time.sleep(0.00001)
     GPIO.output(TRIG, False)
 
-    # Hitung waktu pantulan
     while GPIO.input(ECHO) == 0:
         pulse_start = time.time()
     while GPIO.input(ECHO) == 1:
         pulse_end = time.time()
 
-    durasi = pulse_end - pulse_start
-    jarak = durasi * 17150  # Kecepatan suara 34300 cm/s dibagi 2
-    return round(jarak, 2)
+    duration = pulse_end - pulse_start
+    distance = round(duration * 17150, 2)
 
-# --- Main Loop ---
-try:
-    tampilkan_text("HC-SR04", "Memulai...")
-    time.sleep(1)
+    # Bersihkan layar OLED
+    image = Image.new("1", (oled.width, oled.height))
+    draw = ImageDraw.Draw(image)
 
-    while True:
-        try:
-            jarak = ukur_jarak()
-            print(f"Jarak: {jarak} cm")
-            tampilkan_text("Jarak Terdeteksi:", f"{jarak} cm")
-            time.sleep(0.5)
-        except Exception as e:
-            tampilkan_text("Error:", str(e))
-            time.sleep(1)
+    # Tulis teks
+    draw.text((10, 20), f"Jarak: {distance} cm", font=font, fill=255)
 
-except KeyboardInterrupt:
-    print("\nProgram dihentikan.")
-    tampilkan_text("Program", "Dihentikan.")
-    GPIO.cleanup()
+    # Tampilkan ke OLED
+    oled.image(image)
+    oled.show()
+
+    print(f"Jarak: {distance} cm")
